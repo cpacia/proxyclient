@@ -1,6 +1,7 @@
 package proxyclient
 
 import (
+	"golang.org/x/net/proxy"
 	"io/ioutil"
 	"strings"
 	"testing"
@@ -27,9 +28,12 @@ func TestNewHttpClient(t *testing.T) {
 	}
 
 	// With Proxy
-	if err := SetProxy("127.0.0.1:9150"); err != nil {
+	dialer, err = proxy.SOCKS5("tcp", "127.0.0.1:9150", nil, proxy.Direct)
+	if err != nil {
 		t.Fatal(err)
 	}
+
+	SetProxy(dialer)
 	client = NewHttpClient()
 
 	resp, err = client.Get("http://check.torproject.org")

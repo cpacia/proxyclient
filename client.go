@@ -6,8 +6,6 @@ import (
 	"golang.org/x/net/proxy"
 	"net"
 	"net/http"
-	"net/url"
-	"strings"
 	"sync"
 )
 
@@ -19,27 +17,8 @@ var (
 // SetProxy guards the internal state of this package with a sync.Once. It allows the
 // caller to set a socks5 proxy dialer which will be used to instantiate an http client
 // on all subsequent calls to NewHttpClient.
-func SetProxy(proxyUrl string) error {
-	if !strings.HasPrefix(proxyUrl, "socks5://") {
-		proxyUrl = "socks5://" + proxyUrl
-	}
-
-	// Create a transport that uses the SocksPort.
-	tbProxyURL, err := url.Parse(proxyUrl)
-	if err != nil {
-		return err
-	}
-
-	// Get a proxy Dialer that will create the connection on our
-	// behalf via the SOCKS5 proxy.
-	tbDialer, err := proxy.FromURL(tbProxyURL, proxy.Direct)
-	if err != nil {
-		return err
-	}
-	dialerOnce.Do(func() {
-		dialer = tbDialer
-	})
-	return nil
+func SetProxy(proxyDialer proxy.Dialer) {
+	dialer = proxyDialer
 }
 
 // DialFunc returns a dial function using the package's proxy dialer or
