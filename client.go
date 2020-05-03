@@ -18,7 +18,9 @@ var (
 // caller to set a socks5 proxy dialer which will be used to instantiate an http client
 // on all subsequent calls to NewHttpClient.
 func SetProxy(proxyDialer proxy.Dialer) {
-	dialer = proxyDialer
+	dialerOnce.Do(func() {
+		dialer = proxyDialer
+	})
 }
 
 // DialFunc returns a dial function using the package's proxy dialer or
